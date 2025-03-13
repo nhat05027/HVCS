@@ -97,6 +97,11 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
+  LL_GPIO_SetOutputPin(V_DIV1_PORT, v_DIV1_PIN);
+  LL_GPIO_SetOutputPin(V_DIV2_PORT, v_DIV2_PIN);
+  LL_GPIO_SetOutputPin(V_DIV3_PORT, v_DIV3_PIN);
+  LL_GPIO_SetOutputPin(V_DIV4_PORT, v_DIV4_PIN);
+  
   App_Main();
   /* USER CODE END 2 */
 

@@ -50,6 +50,7 @@ target_sources(stm32cubemx INTERFACE
     ../../App/command.c
     ../../App/cmd_line_task.c
     ../../App/adc_task.c
+    ../../App/charge_task.c
     ../../Utils/delay.c
     ../../Utils/scheduler.c
     ../../Utils/uart.c

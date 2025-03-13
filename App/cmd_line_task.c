@@ -24,7 +24,7 @@ struct _cmd_line_typedef
 typedef struct _cmd_line_typedef cmd_line_typedef;
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Private Variables ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 uart_stdio_typedef  RS232_UART;
-char                g_RS232_UART_TX_buffer[256];
+char                g_RS232_UART_TX_buffer[1024];
 char                g_RS232_UART_RX_buffer[64];
 
 uart_stdio_typedef  DEBUG_UART;
@@ -49,6 +49,7 @@ static const char * ErrorCode[7] =
 };
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Public Variables ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+bool g_debug_on = false;
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Public Function ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 /* :::::::::: CMD Line Task Init :::::::: */
 void CMD_Line_Task_Init()
@@ -144,65 +145,63 @@ void RS232_CMD_Line_Task(void*)
 
 void DEBUG_CMD_Line_Task(void*)
 {
-    uint8_t cmd_return, time_out;
-    char str[80];
-    sprintf(str, "%u", g_Feedback[0]);
-    UART_Send_Char(&DEBUG_UART, '\n');
-    UART_Send_String(&DEBUG_UART, str);
-    for(time_out = 50; (!RX_BUFFER_EMPTY(&DEBUG_UART)) && (time_out != 0); time_out--)
+    // uint8_t cmd_return, time_out;
+    if (g_debug_on)
     {
-        DEBUG_CMD_line.RX_char = UART_Get_Char(&DEBUG_UART);
-        
-        if(((DEBUG_CMD_line.RX_char == 8) || (DEBUG_CMD_line.RX_char == 127)))
-        {
-            if (DEBUG_CMD_line.write_index == 0)
-                break;
-
-            DEBUG_CMD_line.write_index--;
-            UART_Send_Char(&DEBUG_UART, DEBUG_CMD_line.RX_char);
-            break;
-        }
-
-        UART_Send_Char(&DEBUG_UART, DEBUG_CMD_line.RX_char);
-
-        if((DEBUG_CMD_line.RX_char == '\r') || (DEBUG_CMD_line.RX_char == '\n'))
-        {
-            if(DEBUG_CMD_line.write_index > 0)
-            {
-                // Add a NUL char at the end of the CMD
-                DEBUG_CMD_line.p_buffer[DEBUG_CMD_line.write_index] = 0;
-                DEBUG_CMD_line.write_index++;
-
-                cmd_return = CmdLineProcess(DEBUG_CMD_line.p_buffer);
-                //DEBUG_CMD_line.read_index = DEBUG_CMD_line.write_index;
-                DEBUG_CMD_line.write_index    = 0;
-
-                UART_Send_String(&DEBUG_UART, "> ");
-                UART_Printf(&DEBUG_UART, ErrorCode[cmd_return]);
-                UART_Send_String(&DEBUG_UART, "> ");
-            }
-            else
-            {
-
-                UART_Send_String(&DEBUG_UART, "> ");
-            }
-        }
-        else
-        {
-            DEBUG_CMD_line.p_buffer[DEBUG_CMD_line.write_index] = DEBUG_CMD_line.RX_char;
-            DEBUG_CMD_line.write_index++;
-
-            if (DEBUG_CMD_line.write_index > DEBUG_CMD_line.buffer_size)
-            {
-                // SDKLFJSDFKS
-                // > CMD too long!
-                // > 
-                UART_Send_String(&DEBUG_UART, "\n> CMD too long!\n> ");
-                //RF_CMD_line.write_index = RF_CMD_line.read_index;
-                DEBUG_CMD_line.write_index    = 0;
-            }
-        }
+        UART_Printf(&DEBUG_UART, "%d\n", g_Feedback[0]*200*g_volt_prescaler/3300);
     }
+    
+    // for(time_out = 50; (!RX_BUFFER_EMPTY(&DEBUG_UART)) && (time_out != 0); time_out--)
+    // {
+    //     DEBUG_CMD_line.RX_char = UART_Get_Char(&DEBUG_UART);
+        
+    //     if(((DEBUG_CMD_line.RX_char == 8) || (DEBUG_CMD_line.RX_char == 127)))
+    //     {
+    //         if (DEBUG_CMD_line.write_index == 0)
+    //             break;
+
+    //         DEBUG_CMD_line.write_index--;
+    //         UART_Send_Char(&DEBUG_UART, DEBUG_CMD_line.RX_char);
+    //         break;
+    //     }
+
+    //     UART_Send_Char(&DEBUG_UART, DEBUG_CMD_line.RX_char);
+
+    //     if((DEBUG_CMD_line.RX_char == '\r') || (DEBUG_CMD_line.RX_char == '\n'))
+    //     {
+    //         if(DEBUG_CMD_line.write_index > 0)
+    //         {
+    //             // Add a NUL char at the end of the CMD
+    //             DEBUG_CMD_line.p_buffer[DEBUG_CMD_line.write_index] = 0;
+    //             DEBUG_CMD_line.write_index++;
+
+    //             cmd_return = CmdLineProcess(DEBUG_CMD_line.p_buffer);
+    //             //DEBUG_CMD_line.read_index = DEBUG_CMD_line.write_index;
+    //             DEBUG_CMD_line.write_index    = 0;
+
+    //             UART_Send_String(&DEBUG_UART, "> ");
+    //             UART_Printf(&DEBUG_UART, ErrorCode[cmd_return]);
+    //             UART_Send_String(&DEBUG_UART, "> ");
+    //         }
+    //         else
+    //         {
+
+    //             UART_Send_String(&DEBUG_UART, "> ");
+    //         }
+    //     }
+    //     else
+    //     {
+    //         DEBUG_CMD_line.p_buffer[DEBUG_CMD_line.write_index] = DEBUG_CMD_line.RX_char;
+    //         DEBUG_CMD_line.write_index++;
+
+    //         if (DEBUG_CMD_line.write_index > DEBUG_CMD_line.buffer_size)
+    //         {
+    //             UART_Send_String(&DEBUG_UART, "\n> CMD too long!\n> ");
+    //             //RF_CMD_line.write_index = RF_CMD_line.read_index;
+    //             DEBUG_CMD_line.write_index    = 0;
+    //         }
+    //     }
+    // }
 }
 
 /* :::::::::: IRQ Handler ::::::::::::: */

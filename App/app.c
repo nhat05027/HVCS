@@ -4,12 +4,19 @@
 
 static void Status_Led(void*);
 
-#define         SCHEDULER_TASK_COUNT  4
+#define         SCHEDULER_TASK_COUNT  5
 uint32_t        g_ui32SchedulerNumTasks = SCHEDULER_TASK_COUNT;
 tSchedulerTask 	g_psSchedulerTable[SCHEDULER_TASK_COUNT] =
                 {
                     {
                         &ADC_Task,
+                        (void *) 0,
+                        20,                          //call every 248us
+                        0,			                //count from start
+                        true		                //is active
+                    },
+                    {
+                        &Charge_Task,
                         (void *) 0,
                         20,                          //call every 248us
                         0,			                //count from start
@@ -44,6 +51,7 @@ void App_Main(void)
 
     ADC_Task_Init(LL_ADC_SAMPLINGTIME_7CYCLES_5);
     CMD_Line_Task_Init();
+    Charge_Task_Init();
     while (1)
     {
         SchedulerRun();

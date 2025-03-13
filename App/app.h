@@ -15,6 +15,7 @@
 // INCLUDE TASK //
 #include "cmd_line_task.h"
 #include "adc_task.h"
+#include "charge_task.h"
 #include "command.h"
 
 // INCLUDE LIB //
