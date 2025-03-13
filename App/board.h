@@ -48,6 +48,9 @@
 /***********************************************/
 
 /*************HALF-BRIDGE OUTPUT****************/
+#define HALFBRIDGE_PWM_HANDLE   TIM17
+#define HALFBRIDGE_PWM_CHANNEL  LL_TIM_CHANNEL_CH1
+
 #define HB_IN_PORT              GPIOA
 #define HB_IN_PIN               LL_GPIO_PIN_3
 

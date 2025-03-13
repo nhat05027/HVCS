@@ -3,24 +3,39 @@
 #include "stm32f0xx_ll_gpio.h"
 
 static void Status_Led(void*);
+static void Bootstrap_Relay(void*);
 
-#define         SCHEDULER_TASK_COUNT  5
+#define         SCHEDULER_TASK_COUNT  7
 uint32_t        g_ui32SchedulerNumTasks = SCHEDULER_TASK_COUNT;
 tSchedulerTask 	g_psSchedulerTable[SCHEDULER_TASK_COUNT] =
                 {
                     {
                         &ADC_Task,
                         (void *) 0,
-                        20,                          //call every 248us
+                        2,                          //call every 248us
                         0,			                //count from start
                         true		                //is active
                     },
                     {
                         &Charge_Task,
                         (void *) 0,
-                        20,                          //call every 248us
+                        2,                          //call every 248us
                         0,			                //count from start
                         true		                //is active
+                    },
+                    {
+                        &HB_Task,
+                        (void *) 0,
+                        2,                          //call every 248us
+                        0,			                //count from start
+                        true		                //is active
+                    },
+                    {
+                        &Bootstrap_Relay,
+                        (void *) 0,
+                        10,                      //call every 1ms
+                        0,                          //count from start
+                        true                        //is active
                     },
                     {
                         &Status_Led,
@@ -52,6 +67,7 @@ void App_Main(void)
     ADC_Task_Init(LL_ADC_SAMPLINGTIME_7CYCLES_5);
     CMD_Line_Task_Init();
     Charge_Task_Init();
+    HB_Task_Init();
     while (1)
     {
         SchedulerRun();
@@ -61,4 +77,11 @@ void App_Main(void)
 static void Status_Led(void*)
 {
     LL_GPIO_TogglePin(DEBUG_LED_PORT, DEBUG_LED_PIN);
+}
+static void Bootstrap_Relay(void*)
+{
+    LL_GPIO_TogglePin(L_S12_PORT, L_S12_PIN);
+    LL_GPIO_TogglePin(L_S23_PORT, L_S23_PIN);
+    LL_GPIO_TogglePin(L_P12_PORT, L_P12_PIN);
+    LL_GPIO_TogglePin(L_P23_PORT, L_P23_PIN);
 }
