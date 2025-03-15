@@ -1,5 +1,6 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Private Include~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "command.h"
+#include <stdio.h> 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Private Defines ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Private Prototype ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Private Enum ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -7,11 +8,12 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Private Class ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Private Types ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Private Variables ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-bool is_relay_on[6] = {false, false, false, false, false, false};
 bool is_relay_lock[6] = {false, false, false, false, false, false};
+
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Private Prototype ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 static void alloff_relay();
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Public Variables ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+bool is_relay_on[6] = {false, false, false, false, false, false};
 extern uart_stdio_typedef RS232_UART;
 extern uart_stdio_typedef DEBUG_UART;
 int g_volt_prescaler = 5;
@@ -82,7 +84,10 @@ int CMD_GET_STATUS_CHARGE(int argc, char *argv[])
 	else if (argc > 1)
 		return CMDLINE_TOO_MANY_ARGS;
 
-	UART_Printf(&RS232_UART, "> Cap voltage: %dV\n", g_Feedback[0]*200*g_volt_prescaler/3300);
+	char buf[10];
+	float v_temp = g_Feedback[0]*(1/g_volt_prescaler)*0.68;
+	gcvt(v_temp, 3, buf);
+	UART_Printf(&RS232_UART, "> Cap voltage: %sV\n", buf);
 	UART_Printf(&RS232_UART, "> Set voltage: %dV\n", g_set_voltage);
 	UART_Printf(&RS232_UART, "> Is charging: %s\n", g_en_charge ? "True" : "False");
 
@@ -122,8 +127,8 @@ int CMD_SERIAL_CAP(int argc, char *argv[])
 
 	LL_GPIO_SetOutputPin(H_S12_PORT, H_S12_PIN);
 	LL_GPIO_SetOutputPin(H_S23_PORT, H_S23_PIN);
-	is_relay_on[0] = false;
-	is_relay_on[1] = false;
+	is_relay_on[0] = true;
+	is_relay_on[1] = true;
 	
 	UART_Send_String(&RS232_UART, "> Serial Capacitor!\n");
 
@@ -147,82 +152,30 @@ int CMD_CONTROL_RELAY(int argc, char *argv[])
 		return CMDLINE_TOO_FEW_ARGS;
 	else if (argc > 3)
 		return CMDLINE_TOO_MANY_ARGS;
-	if (argv[1]=='S12') 
-	{
-		if (!is_relay_lock[0]) 
-		{
-			if (atoi(argv[2])==1)
-			{
-				LL_GPIO_SetOutputPin(H_S12_PORT, H_S12_PIN);
-				is_relay_on[0] = true;
-				UART_Printf(&RS232_UART, "> Enable %s\n", argv[1]);
-			}
-			else
-			{
-				LL_GPIO_ResetOutputPin(H_S12_PORT, H_S12_PIN);
-				is_relay_on[0] = false;
-				UART_Printf(&RS232_UART, "> Disable %s\n", argv[1]);
-			}
-		} 
-		else UART_Printf(&RS232_UART, "> Relay %s is locked!\n", argv[1]);
-	}
-	else if (argv[1]=='S23')
-	{
-		if (!is_relay_lock[1]) 
-		{
-			LL_GPIO_SetOutputPin(H_S23_PORT, H_S23_PIN);
-			is_relay_on[1] = true;
-			UART_Printf(&RS232_UART, "> Enable %s\n", argv[1]);
-		} 
-		else UART_Printf(&RS232_UART, "> Relay %s is locked!\n", argv[1]);
-	}
-	else if (argv[1]=='P12')
-	{
-		if (!is_relay_lock[2]) 
-		{
-			LL_GPIO_SetOutputPin(H_P12_PORT, H_P12_PIN);
-			is_relay_on[2] = true;
-			UART_Printf(&RS232_UART, "> Enable %s\n", argv[1]);
-		} 
-		else UART_Printf(&RS232_UART, "> Relay %s is locked!\n", argv[1]);
-	}
-	else if (argv[1]=='P23')
-	{
-		if (!is_relay_lock[3]) 
-		{
-			LL_GPIO_SetOutputPin(H_P23_PORT, H_P23_PIN);
-			is_relay_on[3] = true;
-			UART_Printf(&RS232_UART, "> Enable %s\n", argv[1]);
-		} 
-		else UART_Printf(&RS232_UART, "> Relay %s is locked!\n", argv[1]);
-	}
-	else if (argv[1]=='P2G')
-	{
-		if (!is_relay_lock[4]) 
-		{
-			LL_GPIO_SetOutputPin(IN_P2G_PORT, IN_P2G_PIN);
-			is_relay_on[4] = true;
-			UART_Printf(&RS232_UART, "> Enable %s\n", argv[1]);
-		} 
-		else UART_Printf(&RS232_UART, "> Relay %s is locked!\n", argv[1]);
-	}
-	else if (argv[1]=='P3G')
-	{
-		if (!is_relay_lock[5]) 
-		{
-			LL_GPIO_SetOutputPin(IN_P3G_PORT, IN_P3G_PIN);
-			is_relay_on[5] = true;
-			UART_Printf(&RS232_UART, "> Enable %s\n", argv[1]);
-		} 
-		else UART_Printf(&RS232_UART, "> Relay %s is locked!\n", argv[1]);
-	}
-	else
-	{
-		UART_Send_String(&RS232_UART, "> Invalid relay name!\n");
-		return CMDLINE_OK;
-	}
+	char relay_name[6][3] = {"S12", "S23", "P12","P23", "P2G", "P3G"};
 	
-	return CMDLINE_OK;
+	for (int i = 0; i < 6; i++)
+	{
+		if (strncmp(argv[1],relay_name[i],3)==0) 
+		{
+			if (!is_relay_lock[0]) 
+			{
+				if (atoi(argv[2])==1)
+				{
+					LL_GPIO_SetOutputPin(RELAY_PORT[i], RELAY_PIN[i]);
+					is_relay_on[i] = true;
+					UART_Printf(&RS232_UART, "> Enable %s\n", argv[1]);
+				}
+				else
+				{
+					LL_GPIO_ResetOutputPin(RELAY_PORT[i], RELAY_PIN[i]);
+					is_relay_on[i] = false;
+					UART_Printf(&RS232_UART, "> Disable %s\n", argv[1]);
+				}
+			} 
+			else UART_Printf(&RS232_UART, "> Relay %s is locked!\n", argv[1]);
+		}
+	}
 
 	return CMDLINE_OK;
 }int CMD_ALLOFF_RELAY(int argc, char *argv[])
@@ -311,9 +264,9 @@ int CMD_SET_PULSE_HB(int argc, char *argv[])
 }
 int CMD_PULSE_OUT_HB(int argc, char *argv[])
 {
-	if (argc < 1)
+	if (argc < 2)
 		return CMDLINE_TOO_FEW_ARGS;
-	else if (argc > 1)
+	else if (argc > 2)
 		return CMDLINE_TOO_MANY_ARGS;
 	int receive_argm;
 	receive_argm = atoi(argv[1]);
@@ -373,7 +326,7 @@ int CMD_GET_VOLT(int argc, char *argv[])
 		return CMDLINE_TOO_FEW_ARGS;
 	else if (argc > 1)
 		return CMDLINE_TOO_MANY_ARGS;
-	UART_Printf(&RS232_UART, "> VOLTAGE: %u \n", g_Feedback[0]*200*g_volt_prescaler/3300);
+	UART_Printf(&RS232_UART, "> VOLTAGE: %u \n", g_Feedback[0]*0.68);
 
 	return CMDLINE_OK;
 }

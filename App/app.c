@@ -2,6 +2,8 @@
 #include "app.h"
 #include "stm32f0xx_ll_gpio.h"
 
+GPIO_TypeDef *RELAY_BOOT_PORT[6] = {L_S12_PORT, L_S23_PORT, L_P12_PORT, L_P23_PORT};
+GPIO_TypeDef *RELAY_BOOT_PIN[6] = {L_S12_PIN, L_S23_PIN, L_P12_PIN, L_P23_PIN};
 static void Status_Led(void*);
 static void Bootstrap_Relay(void*);
 
@@ -12,28 +14,28 @@ tSchedulerTask 	g_psSchedulerTable[SCHEDULER_TASK_COUNT] =
                     {
                         &ADC_Task,
                         (void *) 0,
-                        2,                          //call every 248us
+                        5,                          //call every 248us
                         0,			                //count from start
                         true		                //is active
                     },
                     {
                         &Charge_Task,
                         (void *) 0,
-                        2,                          //call every 248us
+                        5,                          //call every 248us
                         0,			                //count from start
                         true		                //is active
                     },
                     {
                         &HB_Task,
                         (void *) 0,
-                        2,                          //call every 248us
+                        1000,                          //call every 248us
                         0,			                //count from start
                         true		                //is active
                     },
                     {
                         &Bootstrap_Relay,
                         (void *) 0,
-                        10,                      //call every 1ms
+                        50,                      //call every 1ms
                         0,                          //count from start
                         true                        //is active
                     },
@@ -79,9 +81,10 @@ static void Status_Led(void*)
     LL_GPIO_TogglePin(DEBUG_LED_PORT, DEBUG_LED_PIN);
 }
 static void Bootstrap_Relay(void*)
-{
-    LL_GPIO_TogglePin(L_S12_PORT, L_S12_PIN);
-    LL_GPIO_TogglePin(L_S23_PORT, L_S23_PIN);
-    LL_GPIO_TogglePin(L_P12_PORT, L_P12_PIN);
-    LL_GPIO_TogglePin(L_P23_PORT, L_P23_PIN);
+{   
+    for (int i = 0; i < 4; i++)
+    {
+        if (is_relay_on[i]) LL_GPIO_TogglePin(RELAY_BOOT_PORT[i], RELAY_BOOT_PIN[i]);
+        else LL_GPIO_ResetOutputPin(RELAY_BOOT_PORT[i], RELAY_BOOT_PIN[i]);
+    }
 }

@@ -148,7 +148,10 @@ void DEBUG_CMD_Line_Task(void*)
     // uint8_t cmd_return, time_out;
     if (g_debug_on)
     {
-        UART_Printf(&DEBUG_UART, "%d\n", g_Feedback[0]*200*g_volt_prescaler/3300);
+        char buf[10];
+        float v_temp = g_Feedback[0]*(1/g_volt_prescaler)*0.68;
+        gcvt(v_temp, 3, buf);
+        UART_Printf(&DEBUG_UART, "%s\n", buf);
     }
     
     // for(time_out = 50; (!RX_BUFFER_EMPTY(&DEBUG_UART)) && (time_out != 0); time_out--)

@@ -15,7 +15,10 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Class ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Types ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Variables ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+extern bool is_relay_on[6];
 extern int g_volt_prescaler;
+GPIO_TypeDef *RELAY_PORT[6] = {H_S12_PORT, H_S23_PORT, H_P12_PORT, H_P23_PORT, IN_P2G_PORT, IN_P3G_PORT};
+GPIO_TypeDef *RELAY_PIN[6] = {H_S12_PIN, H_S23_PIN, H_P12_PIN, H_P23_PIN, IN_P2G_PIN, IN_P3G_PIN};
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Prototype ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 /* ::::::::::: Charge Command ::::::::: */
