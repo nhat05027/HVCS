@@ -42,7 +42,7 @@ void HB_Task_Init(void)
 	// PWM_Set_Freq(&Halfbridge_Switching_PWM, 60000);
 	// LL_TIM_DisableIT_UPDATE(Halfbridge_Switching_PWM.TIMx);
     // PWM_Enable(&Halfbridge_Switching_PWM);
-	LL_GPIO_SetOutputPin(HB_SD_PORT, HB_SD_PIN);
+	LL_GPIO_ResetOutputPin(HB_SD_PORT, HB_SD_PIN);
 }
 
 void HB_Task(void*)
@@ -51,7 +51,7 @@ void HB_Task(void*)
 	{
         // PWM_Set_Freq(&Halfbridge_Switching_PWM, HB_freq);
 		// HB_Set_Duty(&Halfbridge_Switching_PWM, 0);
-		LL_GPIO_SetOutputPin(HB_SD_PORT, HB_SD_PIN);
+		LL_GPIO_ResetOutputPin(HB_SD_PORT, HB_SD_PIN);
 	}
 	else if (HB_on)
 	{
@@ -60,7 +60,7 @@ void HB_Task(void*)
         //     HB_Set_Duty(&Halfbridge_Switching_PWM, HB_duty);
         //     HB_cycle -= 1;
         // }
-		LL_GPIO_ResetOutputPin(HB_SD_PORT, HB_SD_PIN);
+		LL_GPIO_SetOutputPin(HB_SD_PORT, HB_SD_PIN);
         LL_GPIO_TogglePin(HB_IN_PORT, HB_IN_PIN);
 	}
 

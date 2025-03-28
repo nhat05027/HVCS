@@ -84,7 +84,6 @@ static void Bootstrap_Relay(void*)
 {   
     for (int i = 0; i < 4; i++)
     {
-        if (is_relay_on[i]) LL_GPIO_TogglePin(RELAY_BOOT_PORT[i], RELAY_BOOT_PIN[i]);
-        else LL_GPIO_ResetOutputPin(RELAY_BOOT_PORT[i], RELAY_BOOT_PIN[i]);
+        LL_GPIO_TogglePin(RELAY_BOOT_PORT[i], RELAY_BOOT_PIN[i]);
     }
 }

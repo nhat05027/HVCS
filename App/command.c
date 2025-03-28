@@ -17,6 +17,8 @@ bool is_relay_on[6] = {false, false, false, false, false, false};
 extern uart_stdio_typedef RS232_UART;
 extern uart_stdio_typedef DEBUG_UART;
 int g_volt_prescaler = 5;
+GPIO_TypeDef *RELAY_PORT[6] = {H_S12_PORT, H_S23_PORT, H_P12_PORT, H_P23_PORT, IN_P2G_PORT, IN_P3G_PORT};
+GPIO_TypeDef *RELAY_PIN[6] = {H_S12_PIN, H_S23_PIN, H_P12_PIN, H_P23_PIN, IN_P2G_PIN, IN_P3G_PIN};
 
 tCmdLineEntry g_psCmdTable[] = {
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Charge Command ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -85,7 +87,7 @@ int CMD_GET_STATUS_CHARGE(int argc, char *argv[])
 		return CMDLINE_TOO_MANY_ARGS;
 
 	char buf[10];
-	float v_temp = g_Feedback[0]*(1/g_volt_prescaler)*0.68;
+	float v_temp = g_Feedback[0]*g_volt_prescaler*0.68;
 	gcvt(v_temp, 3, buf);
 	UART_Printf(&RS232_UART, "> Cap voltage: %sV\n", buf);
 	UART_Printf(&RS232_UART, "> Set voltage: %dV\n", g_set_voltage);
@@ -407,4 +409,5 @@ static void alloff_relay()
 	is_relay_on[3] = false;
 	is_relay_on[4] = false;
 	is_relay_on[5] = false;
+
 }
