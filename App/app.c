@@ -14,28 +14,28 @@ tSchedulerTask 	g_psSchedulerTable[SCHEDULER_TASK_COUNT] =
                     {
                         &ADC_Task,
                         (void *) 0,
-                        5,                          //call every 248us
+                        5,                          //call every 500us
                         0,			                //count from start
                         true		                //is active
                     },
                     {
                         &Charge_Task,
                         (void *) 0,
-                        5,                          //call every 248us
+                        5,                          //call every 500us
                         0,			                //count from start
                         true		                //is active
                     },
                     {
                         &HB_Task,
                         (void *) 0,
-                        1000,                          //call every 248us
+                        1000,                          //call every 100ms
                         0,			                //count from start
                         true		                //is active
                     },
                     {
                         &Bootstrap_Relay,
                         (void *) 0,
-                        50,                      //call every 1ms
+                        50,                      //call every 5ms
                         0,                          //count from start
                         true                        //is active
                     },
@@ -49,14 +49,14 @@ tSchedulerTask 	g_psSchedulerTable[SCHEDULER_TASK_COUNT] =
                     {
                         &RS232_CMD_Line_Task,
                         (void *) 0,
-                        50,                         //call every 500us
+                        50,                         //call every 5ms
                         0,                          //count from start
                         true                        //is active
                     },
                     {
                         &DEBUG_CMD_Line_Task,
                         (void *) 0,
-                        1000,                         //call every 500us
+                        1000,                         //call every 100ms
                         0,                          //count from start
                         true                        //is active
                     },
