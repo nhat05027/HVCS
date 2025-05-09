@@ -85,6 +85,7 @@
 #define DEBUG_LED_PIN           LL_GPIO_PIN_13
 /***********************************************/
 
-
+#define COEFFICENTCY_A 0.63416
+#define COEFFICENTCY_B 5.45843
 
 #endif /* BOARD_H_ */

@@ -87,7 +87,7 @@ int CMD_GET_STATUS_CHARGE(int argc, char *argv[])
 		return CMDLINE_TOO_MANY_ARGS;
 
 	char buf[10];
-	float v_temp = g_Feedback[0]*g_volt_prescaler*0.68;
+	float v_temp = g_Feedback[0]*COEFFICENTCY_A+COEFFICENTCY_B;
 	gcvt(v_temp, 3, buf);
 	UART_Printf(&RS232_UART, "> Cap voltage: %sV\n", buf);
 	UART_Printf(&RS232_UART, "> Set voltage: %dV\n", g_set_voltage);

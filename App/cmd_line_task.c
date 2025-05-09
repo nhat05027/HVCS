@@ -149,7 +149,7 @@ void DEBUG_CMD_Line_Task(void*)
     if (g_debug_on)
     {
         char buf[10];
-        float v_temp = g_Feedback[0]*g_volt_prescaler*0.68;
+        float v_temp = g_Feedback[0]*COEFFICENTCY_A+COEFFICENTCY_B;
         gcvt(v_temp, 3, buf);
         UART_Printf(&DEBUG_UART, "%s\n", buf);
     }

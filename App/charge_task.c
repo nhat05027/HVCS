@@ -60,7 +60,7 @@ void Charge_Task(void*)
             LL_GPIO_ResetOutputPin(FLYBACK_EN_PORT, FLYBACK_EN_PIN);
             Charge_State = CHARGE_OFF_STATE;
         }
-        if (g_Feedback[0]*g_volt_prescaler*0.68 <= g_set_voltage) LL_GPIO_SetOutputPin(FLYBACK_EN_PORT, FLYBACK_EN_PIN);
+        if ((g_Feedback[0]*COEFFICENTCY_A+COEFFICENTCY_B)<= g_set_voltage) LL_GPIO_SetOutputPin(FLYBACK_EN_PORT, FLYBACK_EN_PIN);
         else LL_GPIO_ResetOutputPin(FLYBACK_EN_PORT, FLYBACK_EN_PIN);
         
         break;
